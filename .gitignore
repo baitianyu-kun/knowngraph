@@ -1,0 +1,6 @@
+# ===== 字节码/编译文件 =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python

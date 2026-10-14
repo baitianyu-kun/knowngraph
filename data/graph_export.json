@@ -1,0 +1,392 @@
+{
+  "nodes": [
+    {
+      "id": "/api/order/create",
+      "entity_type": "API",
+      "description": "创建订单接口",
+      "tags": [
+        "并发",
+        "分布式锁",
+        "Redisson",
+        "订单",
+        "幂等性"
+      ],
+      "sessions": [
+        "sess_abc123"
+      ],
+      "created_at": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "id": "OrderService.createOrder",
+      "entity_type": "Method",
+      "description": "订单创建服务方法",
+      "tags": [
+        "并发",
+        "分布式锁",
+        "Redisson",
+        "订单",
+        "幂等性"
+      ],
+      "sessions": [
+        "sess_abc123"
+      ],
+      "created_at": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "id": "Redisson",
+      "entity_type": "Technology",
+      "description": "Redis 分布式锁客户端",
+      "tags": [
+        "并发",
+        "分布式锁",
+        "Redisson",
+        "订单",
+        "幂等性"
+      ],
+      "sessions": [
+        "sess_abc123"
+      ],
+      "created_at": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "id": "分布式锁",
+      "entity_type": "Pattern",
+      "description": "防止并发竞态条件的锁机制",
+      "tags": [
+        "并发",
+        "分布式锁",
+        "Redisson",
+        "订单",
+        "幂等性"
+      ],
+      "sessions": [
+        "sess_abc123"
+      ],
+      "created_at": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "id": "并发重复下单",
+      "entity_type": "Bug",
+      "description": "高并发下重复创建订单的问题",
+      "tags": [
+        "并发",
+        "分布式锁",
+        "Redisson",
+        "订单",
+        "幂等性"
+      ],
+      "sessions": [
+        "sess_abc123"
+      ],
+      "created_at": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "id": "session:sess_abc123",
+      "entity_type": "Session",
+      "summary": "接口 /api/order/create (OrderService.createOrder) 在并发场景下需要加分布式锁，使用 Redisson，锁粒度为 userId+productId，TTL 5秒，防止重复下单。",
+      "developer": "alice",
+      "timestamp": "2026-10-10T10:00:00+08:00",
+      "tags": [
+        "并发",
+        "分布式锁",
+        "Redisson",
+        "订单",
+        "幂等性"
+      ],
+      "files_changed": [
+        "src/main/java/com/example/service/OrderService.java"
+      ],
+      "confidence": 0.99,
+      "sessions": [
+        "sess_abc123"
+      ]
+    },
+    {
+      "id": "dev:alice",
+      "entity_type": "Developer",
+      "sessions": [
+        "sess_abc123"
+      ]
+    },
+    {
+      "id": "file:src/main/java/com/example/service/OrderService.java",
+      "entity_type": "File",
+      "sessions": [
+        "sess_abc123"
+      ]
+    },
+    {
+      "id": "UserService.getUserById",
+      "entity_type": "Method",
+      "description": "按 ID 查询用户",
+      "tags": [
+        "缓存",
+        "Redis",
+        "Cache-Aside",
+        "降级",
+        "UserService"
+      ],
+      "sessions": [
+        "sess_def456"
+      ],
+      "created_at": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "id": "Redis",
+      "entity_type": "Technology",
+      "description": "分布式缓存",
+      "tags": [
+        "缓存",
+        "Redis",
+        "Cache-Aside",
+        "降级",
+        "UserService"
+      ],
+      "sessions": [
+        "sess_def456"
+      ],
+      "created_at": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "id": "Cache-Aside",
+      "entity_type": "Pattern",
+      "description": "旁路缓存模式",
+      "tags": [
+        "缓存",
+        "Redis",
+        "Cache-Aside",
+        "降级",
+        "UserService"
+      ],
+      "sessions": [
+        "sess_def456"
+      ],
+      "created_at": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "id": "RedisException",
+      "entity_type": "Concept",
+      "description": "Redis 不可用异常",
+      "tags": [
+        "缓存",
+        "Redis",
+        "Cache-Aside",
+        "降级",
+        "UserService"
+      ],
+      "sessions": [
+        "sess_def456"
+      ],
+      "created_at": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "id": "缓存降级",
+      "entity_type": "Pattern",
+      "description": "Redis 故障时 fallback 到 DB",
+      "tags": [
+        "缓存",
+        "Redis",
+        "Cache-Aside",
+        "降级",
+        "UserService"
+      ],
+      "sessions": [
+        "sess_def456"
+      ],
+      "created_at": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "id": "session:sess_def456",
+      "entity_type": "Session",
+      "summary": "UserService.getUserById 使用 Redis Cache-Aside 模式缓存用户信息（TTL 10分钟），Redis 不可用时降级到 DB 查询，写/改操作需主动删除缓存（注销/改密场景）。",
+      "developer": "bob",
+      "timestamp": "2026-10-11T14:00:00+08:00",
+      "tags": [
+        "缓存",
+        "Redis",
+        "Cache-Aside",
+        "降级",
+        "UserService"
+      ],
+      "files_changed": [
+        "src/main/java/com/example/service/UserService.java"
+      ],
+      "confidence": 0.895,
+      "sessions": [
+        "sess_def456"
+      ]
+    },
+    {
+      "id": "dev:bob",
+      "entity_type": "Developer",
+      "sessions": [
+        "sess_def456"
+      ]
+    },
+    {
+      "id": "file:src/main/java/com/example/service/UserService.java",
+      "entity_type": "File",
+      "sessions": [
+        "sess_def456"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "session:sess_abc123",
+      "to": "dev:alice",
+      "relation_type": "CONTRIBUTED_BY",
+      "weight": 1.0
+    },
+    {
+      "from": "session:sess_abc123",
+      "to": "file:src/main/java/com/example/service/OrderService.java",
+      "relation_type": "MODIFIED_FILE",
+      "weight": 1.0
+    },
+    {
+      "from": "/api/order/create",
+      "to": "OrderService.createOrder",
+      "relation_type": "IMPLEMENTED_BY",
+      "weight": 1.0,
+      "session_id": "sess_abc123",
+      "timestamp": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "from": "OrderService.createOrder",
+      "to": "并发重复下单",
+      "relation_type": "HAS_ISSUE",
+      "weight": 1.0,
+      "session_id": "sess_abc123",
+      "timestamp": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "from": "分布式锁",
+      "to": "并发重复下单",
+      "relation_type": "RESOLVES",
+      "weight": 1.0,
+      "session_id": "sess_abc123",
+      "timestamp": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "from": "Redisson",
+      "to": "分布式锁",
+      "relation_type": "IMPLEMENTS",
+      "weight": 1.0,
+      "session_id": "sess_abc123",
+      "timestamp": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "from": "OrderService.createOrder",
+      "to": "分布式锁",
+      "relation_type": "REQUIRES",
+      "weight": 1.0,
+      "session_id": "sess_abc123",
+      "timestamp": "2026-10-10T10:00:00+08:00"
+    },
+    {
+      "from": "session:sess_abc123",
+      "to": "/api/order/create",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_abc123",
+      "to": "OrderService.createOrder",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_abc123",
+      "to": "Redisson",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_abc123",
+      "to": "分布式锁",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_abc123",
+      "to": "并发重复下单",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "dev:bob",
+      "relation_type": "CONTRIBUTED_BY",
+      "weight": 1.0
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "file:src/main/java/com/example/service/UserService.java",
+      "relation_type": "MODIFIED_FILE",
+      "weight": 1.0
+    },
+    {
+      "from": "UserService.getUserById",
+      "to": "Redis",
+      "relation_type": "USES",
+      "weight": 1.0,
+      "session_id": "sess_def456",
+      "timestamp": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "from": "Cache-Aside",
+      "to": "UserService.getUserById",
+      "relation_type": "APPLIED_TO",
+      "weight": 1.0,
+      "session_id": "sess_def456",
+      "timestamp": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "from": "缓存降级",
+      "to": "RedisException",
+      "relation_type": "HANDLES",
+      "weight": 1.0,
+      "session_id": "sess_def456",
+      "timestamp": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "from": "UserService.getUserById",
+      "to": "缓存降级",
+      "relation_type": "FALLBACK_TO",
+      "weight": 1.0,
+      "session_id": "sess_def456",
+      "timestamp": "2026-10-11T14:00:00+08:00"
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "UserService.getUserById",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "Redis",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "Cache-Aside",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "RedisException",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_def456",
+      "to": "缓存降级",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    }
+  ]
+}

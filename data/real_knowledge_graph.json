@@ -1,0 +1,474 @@
+{
+  "nodes": [
+    {
+      "id": "/api/order/create",
+      "entity_type": "API",
+      "description": "订单创建接口，压测中暴露高并发重复下单问题",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "OrderService.createOrder",
+      "entity_type": "Method",
+      "description": "订单创建核心方法，被改造为 Redisson 分布式锁保护的临界区",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "Redisson RLock",
+      "entity_type": "Technology",
+      "description": "实现分布式锁的组件，lock(5, TimeUnit.SECONDS) 设置 TTL 防死锁",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "分布式锁",
+      "entity_type": "Pattern",
+      "description": "解决并发竞态、保证同一用户同一商品不重复下单的并发控制模式",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "锁粒度 userId+productId",
+      "entity_type": "Config",
+      "description": "锁 key 为 order:create:{userId}:{productId}，将并发竞争限定在单用户单商品维度",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "重复订单",
+      "entity_type": "Issue",
+      "description": "高并发下同一请求被并发执行导致的业务脏数据问题",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "数据库唯一索引",
+      "entity_type": "Pattern",
+      "description": "作为幂等防重的最后兜底手段，与分布式锁形成双重保障",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "sessions": [
+        "sess_order_concurrency_001"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "session:sess_order_concurrency_001",
+      "entity_type": "Session",
+      "summary": "订单创建接口 /api/order/create（OrderService.createOrder）在高并发下会因竞态条件产生重复订单，必须按 userId+productId 维度加 Redisson 分布式锁（TTL 5 秒）防重，并用数据库唯一索引兜底，严禁使用全局锁。",
+      "developer": "alice",
+      "timestamp": "2026-10-15T00:15:00+08:00",
+      "tags": [
+        "高并发",
+        "分布式锁",
+        "Redisson",
+        "幂等",
+        "重复订单",
+        "订单创建",
+        "锁粒度",
+        "并发控制"
+      ],
+      "files_changed": [
+        "src/main/java/com/example/service/OrderService.java"
+      ],
+      "confidence": 0.92,
+      "sessions": [
+        "sess_order_concurrency_001"
+      ]
+    },
+    {
+      "id": "dev:alice",
+      "entity_type": "Developer",
+      "sessions": [
+        "sess_order_concurrency_001"
+      ]
+    },
+    {
+      "id": "file:src/main/java/com/example/service/OrderService.java",
+      "entity_type": "File",
+      "sessions": [
+        "sess_order_concurrency_001"
+      ]
+    },
+    {
+      "id": "Wechatpay-Serial",
+      "entity_type": "Config",
+      "description": "微信支付V3规范要求的请求头，值为商户API证书序列号，缺失会导致签名校验失败",
+      "tags": [
+        "微信支付",
+        "支付对接",
+        "API约束",
+        "签名错误",
+        "请求头规范",
+        "V3接口"
+      ],
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "/api/pay/wechat/prepay",
+      "entity_type": "API",
+      "description": "微信支付统一预下单接口，报400 Bad Request / SIGN_ERROR",
+      "tags": [
+        "微信支付",
+        "支付对接",
+        "API约束",
+        "签名错误",
+        "请求头规范",
+        "V3接口"
+      ],
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "WechatPayClient.requestPay",
+      "entity_type": "Method",
+      "description": "封装微信支付请求的客户端方法，修复处补写 Wechatpay-Serial 头",
+      "tags": [
+        "微信支付",
+        "支付对接",
+        "API约束",
+        "签名错误",
+        "请求头规范",
+        "V3接口"
+      ],
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "微信支付V3",
+      "entity_type": "Technology",
+      "description": "对请求头与签名串格式要求严格的支付开放接口规范",
+      "tags": [
+        "微信支付",
+        "支付对接",
+        "API约束",
+        "签名错误",
+        "请求头规范",
+        "V3接口"
+      ],
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "SIGN_ERROR",
+      "entity_type": "Issue",
+      "description": "微信返回的错误码，本地验签串一致时通常指向缺失序列号或签名串格式问题",
+      "tags": [
+        "微信支付",
+        "支付对接",
+        "API约束",
+        "签名错误",
+        "请求头规范",
+        "V3接口"
+      ],
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ],
+      "created_at": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "id": "session:sess_pay_wechat_v3_002",
+      "entity_type": "Session",
+      "summary": "微信支付V3接口（含统一预下单）的请求Header中必须携带 Wechatpay-Serial（商户API证书序列号），否则服务端会返回400并报 SIGN_ERROR。",
+      "developer": "bob",
+      "timestamp": "2026-10-15T00:15:00+08:00",
+      "tags": [
+        "微信支付",
+        "支付对接",
+        "API约束",
+        "签名错误",
+        "请求头规范",
+        "V3接口"
+      ],
+      "files_changed": [
+        "src/main/java/com/example/pay/WechatPayClient.java"
+      ],
+      "confidence": 0.95,
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ]
+    },
+    {
+      "id": "dev:bob",
+      "entity_type": "Developer",
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ]
+    },
+    {
+      "id": "file:src/main/java/com/example/pay/WechatPayClient.java",
+      "entity_type": "File",
+      "sessions": [
+        "sess_pay_wechat_v3_002"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "dev:alice",
+      "relation_type": "CONTRIBUTED_BY",
+      "weight": 1.0
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "file:src/main/java/com/example/service/OrderService.java",
+      "relation_type": "MODIFIED_FILE",
+      "weight": 1.0
+    },
+    {
+      "from": "/api/order/create",
+      "to": "分布式锁",
+      "relation_type": "REQUIRES",
+      "weight": 1.0,
+      "session_id": "sess_order_concurrency_001",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "OrderService.createOrder",
+      "to": "Redisson RLock",
+      "relation_type": "IMPLEMENTED_BY",
+      "weight": 1.0,
+      "session_id": "sess_order_concurrency_001",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "分布式锁",
+      "to": "重复订单",
+      "relation_type": "RESOLVES",
+      "weight": 1.0,
+      "session_id": "sess_order_concurrency_001",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "Redisson RLock",
+      "to": "锁粒度 userId+productId",
+      "relation_type": "CONSTRAINED_BY",
+      "weight": 1.0,
+      "session_id": "sess_order_concurrency_001",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "重复订单",
+      "to": "数据库唯一索引",
+      "relation_type": "RESOLVES",
+      "weight": 1.0,
+      "session_id": "sess_order_concurrency_001",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "/api/order/create",
+      "to": "重复订单",
+      "relation_type": "CAUSES",
+      "weight": 1.0,
+      "session_id": "sess_order_concurrency_001",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "/api/order/create",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "OrderService.createOrder",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "Redisson RLock",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "分布式锁",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "锁粒度 userId+productId",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "重复订单",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_order_concurrency_001",
+      "to": "数据库唯一索引",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "dev:bob",
+      "relation_type": "CONTRIBUTED_BY",
+      "weight": 1.0
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "file:src/main/java/com/example/pay/WechatPayClient.java",
+      "relation_type": "MODIFIED_FILE",
+      "weight": 1.0
+    },
+    {
+      "from": "/api/pay/wechat/prepay",
+      "to": "Wechatpay-Serial",
+      "relation_type": "CONSTRAINED_BY",
+      "weight": 1.0,
+      "session_id": "sess_pay_wechat_v3_002",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "WechatPayClient.requestPay",
+      "to": "Wechatpay-Serial",
+      "relation_type": "USES",
+      "weight": 1.0,
+      "session_id": "sess_pay_wechat_v3_002",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "SIGN_ERROR",
+      "to": "Wechatpay-Serial",
+      "relation_type": "CAUSES",
+      "weight": 1.0,
+      "session_id": "sess_pay_wechat_v3_002",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "WechatPayClient.requestPay",
+      "to": "微信支付V3",
+      "relation_type": "IMPLEMENTED_BY",
+      "weight": 1.0,
+      "session_id": "sess_pay_wechat_v3_002",
+      "timestamp": "2026-10-15T00:15:00+08:00"
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "Wechatpay-Serial",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "/api/pay/wechat/prepay",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "WechatPayClient.requestPay",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "微信支付V3",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    },
+    {
+      "from": "session:sess_pay_wechat_v3_002",
+      "to": "SIGN_ERROR",
+      "relation_type": "MENTIONS",
+      "weight": 0.5
+    }
+  ]
+}
