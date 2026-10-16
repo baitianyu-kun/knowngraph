@@ -12,8 +12,18 @@ import json
 import subprocess
 import os
 from dataclasses import dataclass, field, asdict
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from datetime import datetime
+
+from src.hook_collector import LocalDLPFilter
+
+
+@dataclass
+class MicroLoopSignal:
+    should_trigger: bool
+    trigger_type: str  # BUG_FIX_LOOP | WALKTHROUGH_LOOP | MANUAL | NONE
+    confidence: float
+    description: str
 
 
 @dataclass
@@ -151,6 +161,46 @@ class GitContextCollector:
         return files
 
 
+class MicroLoopDetector:
+    """
+    微闭环信号监听器（基于 ref1 & ref2 优化）：
+    不必等整场长对话退出，在检测到“排障闭环”或“架构走读闭环”时增量触发后台分析。
+    """
+    @staticmethod
+    def detect(conversation: ConversationSession, git_context: GitContext, test_output: str = "") -> MicroLoopSignal:
+        text = conversation.raw_text.lower()
+        has_error_mention = any(k in text for k in ["error", "exception", "failed", "报错", "异常", "排查", "死锁", "超时"])
+        has_code_changes = len(git_context.files_changed) > 0 or bool(git_context.diff_summary)
+        has_test_success = any(k in (test_output.lower() + text) for k in ["build success", "tests passed", "单测通过", "测试通过", "all passed", "exit code: 0"])
+
+        # 信号 A：排障闭环 (报错 -> 改码 -> 单测通过)
+        if has_error_mention and has_code_changes and has_test_success:
+            return MicroLoopSignal(
+                should_trigger=True,
+                trigger_type="BUG_FIX_LOOP",
+                confidence=0.92,
+                description="检测到完整的排障闭环：报错排查 -> 代码修改 -> 单测转绿验证"
+            )
+
+        # 信号 B：深度架构走读闭环 (连续检查多个符号/文件，无改码，输出长文架构结论)
+        if not has_code_changes and len(conversation.turns) >= 3:
+            assistant_text = "".join([t.get("content", "") for t in conversation.turns if t.get("role") in ["assistant", "agent"]])
+            if len(assistant_text) >= 200 and any(k in assistant_text for k in ["机制", "架构", "死锁", "加锁", "必须", "约定", "设计", "规则", "约束"]):
+                return MicroLoopSignal(
+                    should_trigger=True,
+                    trigger_type="WALKTHROUGH_LOOP",
+                    confidence=0.88,
+                    description="检测到架构走读闭环：多轮代码逻辑走读分析并输出了高密度机制约定"
+                )
+
+        return MicroLoopSignal(
+            should_trigger=False,
+            trigger_type="NONE",
+            confidence=0.1,
+            description="未达到微闭环触发阈值"
+        )
+
+
 class MultiSourceCollector:
     """
     Orchestrates collection from all sources into a unified CollectedEvent.
@@ -159,32 +209,44 @@ class MultiSourceCollector:
     def __init__(self):
         self.conv_collector = ConversationCollector()
         self.git_collector = GitContextCollector()
+        self.micro_loop_detector = MicroLoopDetector()
 
     def collect(
         self,
         session_dict: dict,
         diff_text: str = "",
         repo_path: Optional[str] = None,
+        test_output: str = "",
     ) -> CollectedEvent:
-        conversation = self.conv_collector.from_dict(session_dict)
+        # 1. 客户端 DLP 脱敏
+        sanitized_session = LocalDLPFilter.sanitize_obj(session_dict)
+        conversation = self.conv_collector.from_dict(sanitized_session)
 
+        # 2. 收集 Git 上下文
         if diff_text:
-            git_ctx = self.git_collector.from_mock_diff(conversation.session_id, diff_text)
+            sanitized_diff = LocalDLPFilter.sanitize(diff_text)
+            git_ctx = self.git_collector.from_mock_diff(conversation.session_id, sanitized_diff)
         elif repo_path:
             git_ctx = self.git_collector.from_repo(conversation.session_id, repo_path)
         else:
             git_ctx = GitContext(session_id=conversation.session_id)
 
-        return CollectedEvent(
+        # 3. 收集事件并挂载微闭环判定
+        event = CollectedEvent(
             session_id=conversation.session_id,
             developer=conversation.developer,
             timestamp=conversation.timestamp,
             conversation=conversation,
             git_context=git_ctx,
         )
+        return event
+
+    def detect_micro_loop(self, event: CollectedEvent, test_output: str = "") -> MicroLoopSignal:
+        return self.micro_loop_detector.detect(event.conversation, event.git_context, test_output)
 
     def to_dict(self, event: CollectedEvent) -> dict:
         return asdict(event)
+
 
 
 if __name__ == "__main__":

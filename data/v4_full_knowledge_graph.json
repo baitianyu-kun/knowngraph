@@ -1,0 +1,191 @@
+{
+  "nodes": [
+    {
+      "id": "know_0b636c307d9e",
+      "entity_type": "Knowledge",
+      "title": "订单提交调用下游风控服务必须显式配置 300ms 超时与降级兜底",
+      "type": "APIConstraint",
+      "summary": "下游风控服务在网络抖动时若未设超时会导致本地 HTTP 线程池被打满引发接口超时，必须配置 300ms 超时并降级兜底",
+      "pitfalls": "调用下游微服务严禁使用默认无限超时配置；必须显式注入 CircuitBreaker 与 Timeout",
+      "ruled_out": [
+        "慢查排障中曾怀疑数据库索引缺失并加索引复测，证实对超时无效，禁止团队再次尝试加索引弯路",
+        "排除本地业务代码逻辑死循环阻塞"
+      ],
+      "tags": [
+        "超时",
+        "风控下游",
+        "线程池耗尽",
+        "APIConstraint"
+      ],
+      "status": "SUPERSEDED",
+      "valid_at": "2026-10-15T16:46:38Z",
+      "invalid_at": "2026-10-15T16:46:38Z",
+      "transaction_time": "2026-10-15T16:46:38Z",
+      "sessions": [
+        "sess_order_v1"
+      ]
+    },
+    {
+      "id": "symbol:com.company.order.OrderSubmitService#submitOrder",
+      "entity_type": "CodeSymbol",
+      "fqn": "com.company.order.OrderSubmitService#submitOrder",
+      "sessions": [
+        "sess_order_v1",
+        "sess_order_v2"
+      ],
+      "tags": []
+    },
+    {
+      "id": "ev_dc450b4d",
+      "entity_type": "EvidenceLedger",
+      "level": "L2_TOOL_VERIFIED",
+      "commit_sha": "commit_sha_111",
+      "session_id": "sess_order_v1",
+      "test_passed": true,
+      "timestamp": "2026-10-15T16:46:38Z"
+    },
+    {
+      "id": "dev:alice",
+      "entity_type": "Developer",
+      "sessions": [
+        "sess_order_v1"
+      ]
+    },
+    {
+      "id": "know_e0e69c3f6396",
+      "entity_type": "Knowledge",
+      "title": "订单提交重构为 MQ 异步风控解耦，移除同步 300ms 超时限制",
+      "type": "ArchitectureDecision",
+      "summary": "重构风控链路为 Transactional Outbox 异步发布，彻底取代历史的同步 300ms 降级超时约束",
+      "pitfalls": "新接入方严禁再配置同步 HTTP 超时，需监听 risk_verified 领域事件",
+      "ruled_out": [
+        "排除同步 RPC 阻塞风控方案"
+      ],
+      "tags": [
+        "订单重构",
+        "异步解耦",
+        "ArchitectureDecision"
+      ],
+      "status": "CORROBORATED",
+      "valid_at": "2026-10-15T16:46:38Z",
+      "invalid_at": null,
+      "transaction_time": "2026-10-15T16:46:38Z",
+      "sessions": [
+        "sess_order_v2"
+      ]
+    },
+    {
+      "id": "ev_5c53ca84",
+      "entity_type": "EvidenceLedger",
+      "level": "L2_TOOL_VERIFIED",
+      "commit_sha": "commit_sha_222",
+      "session_id": "sess_order_v2",
+      "test_passed": true,
+      "timestamp": "2026-10-15T16:46:38Z"
+    },
+    {
+      "id": "dev:bob",
+      "entity_type": "Developer",
+      "sessions": [
+        "sess_order_v2"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "know_0b636c307d9e",
+      "to": "symbol:com.company.order.OrderSubmitService#submitOrder",
+      "relation_type": "CONSTRAINS",
+      "weight": 1.0
+    },
+    {
+      "from": "know_0b636c307d9e",
+      "to": "ev_dc450b4d",
+      "relation_type": "HAS_EVIDENCE",
+      "weight": 1.0
+    },
+    {
+      "from": "know_0b636c307d9e",
+      "to": "dev:alice",
+      "relation_type": "CONTRIBUTED_BY",
+      "weight": 1.0
+    },
+    {
+      "from": "know_e0e69c3f6396",
+      "to": "know_0b636c307d9e",
+      "relation_type": "SUPERSEDES",
+      "reason": "检测到架构/规则演化取代 (重构演化)，新知识伴随高置信证据，取代历史知识",
+      "timestamp": "2026-10-15T16:46:38Z"
+    },
+    {
+      "from": "know_e0e69c3f6396",
+      "to": "symbol:com.company.order.OrderSubmitService#submitOrder",
+      "relation_type": "CONSTRAINS",
+      "weight": 1.0
+    },
+    {
+      "from": "know_e0e69c3f6396",
+      "to": "ev_5c53ca84",
+      "relation_type": "HAS_EVIDENCE",
+      "weight": 1.0
+    },
+    {
+      "from": "know_e0e69c3f6396",
+      "to": "dev:bob",
+      "relation_type": "CONTRIBUTED_BY",
+      "weight": 1.0
+    }
+  ],
+  "knowledge_hypernodes": [
+    {
+      "id": "know_0b636c307d9e",
+      "title": "订单提交调用下游风控服务必须显式配置 300ms 超时与降级兜底",
+      "knowledge_type": "APIConstraint",
+      "summary": "下游风控服务在网络抖动时若未设超时会导致本地 HTTP 线程池被打满引发接口超时，必须配置 300ms 超时并降级兜底",
+      "pitfalls": "调用下游微服务严禁使用默认无限超时配置；必须显式注入 CircuitBreaker 与 Timeout",
+      "ruled_out_hypotheses": [
+        "慢查排障中曾怀疑数据库索引缺失并加索引复测，证实对超时无效，禁止团队再次尝试加索引弯路",
+        "排除本地业务代码逻辑死循环阻塞"
+      ],
+      "tags": [
+        "超时",
+        "风控下游",
+        "线程池耗尽",
+        "APIConstraint"
+      ],
+      "associated_symbols": [
+        "com.company.order.OrderSubmitService#submitOrder"
+      ],
+      "status": "SUPERSEDED",
+      "valid_at": "2026-10-15T16:46:38Z",
+      "invalid_at": "2026-10-15T16:46:38Z",
+      "transaction_time": "2026-10-15T16:46:38Z",
+      "superseded_by": "know_e0e69c3f6396",
+      "contradicts_with": []
+    },
+    {
+      "id": "know_e0e69c3f6396",
+      "title": "订单提交重构为 MQ 异步风控解耦，移除同步 300ms 超时限制",
+      "knowledge_type": "ArchitectureDecision",
+      "summary": "重构风控链路为 Transactional Outbox 异步发布，彻底取代历史的同步 300ms 降级超时约束",
+      "pitfalls": "新接入方严禁再配置同步 HTTP 超时，需监听 risk_verified 领域事件",
+      "ruled_out_hypotheses": [
+        "排除同步 RPC 阻塞风控方案"
+      ],
+      "tags": [
+        "订单重构",
+        "异步解耦",
+        "ArchitectureDecision"
+      ],
+      "associated_symbols": [
+        "com.company.order.OrderSubmitService#submitOrder"
+      ],
+      "status": "CORROBORATED",
+      "valid_at": "2026-10-15T16:46:38Z",
+      "invalid_at": null,
+      "transaction_time": "2026-10-15T16:46:38Z",
+      "superseded_by": null,
+      "contradicts_with": []
+    }
+  ]
+}
